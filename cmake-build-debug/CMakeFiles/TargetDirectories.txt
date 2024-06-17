@@ -1,0 +1,3 @@
+C:/Users/imano/Desktop/Proyecto Arqui Compu/cmake-build-debug/CMakeFiles/Proyecto_Arqui_Compu.dir
+C:/Users/imano/Desktop/Proyecto Arqui Compu/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Users/imano/Desktop/Proyecto Arqui Compu/cmake-build-debug/CMakeFiles/rebuild_cache.dir
