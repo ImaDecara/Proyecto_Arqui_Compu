@@ -5,6 +5,7 @@
 #include <stdbool.h> /*Para usar bool*/
 #include <windows.h>
 
+
 #define CLAVE "12345"
 #define TECLA_ENTER 13
 #define TECLA_BACKSPACE 8
@@ -29,6 +30,7 @@ void menu() {
     printf("4- Opcion4\n");
     printf("5- Salir\n");
 }
+
 bool controlContrasena() {
     char usuario[LONGITUD + 1];
     char clave[LONGITUD + 1];
@@ -84,38 +86,53 @@ bool controlContrasena() {
     }
 }
 
+void estadoLeds(int num) {
+    const char led[] = {14, 15, 10, 23, 24, 25, 8, 7}; // Debe declararse nuevamente aquí
+    for (int i = 0; i < 8; i++) {
+        int numval = (num >> i) & 0x01;
+        //-------> digitalWrite(led[i], numval);
+    }
+}
+
 void mostrarSecuencia(unsigned char secuencia) {
     char ledConsola;
     int estadoLed;
 
     for (int i = NUM_LEDS - 1; i >= 0; --i) {
         if (secuencia & (1 << i)) {
-            ledConsola = '*';
-            estadoLed = 1;
+            ledConsola = '*'; // LED encendido
         } else {
-            ledConsola = '_';
-            estadoLed = 0;
+            ledConsola = '_'; // LED apagado
         }
 
-        printf("%c ", ledConsola);
-        digitalWrite(i, estadoLed);
+        printf("%c ", ledConsola); // Muestra el estado del LED inmediatamente cuando se ejecuta "ledConsola"
     }
     printf("\n");
-} //Muestra la secuencia de los leds
+}
 
 void autoFantastico() {
-    unsigned char ledsAutoFantastico[] = {0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01};
+   char tablaAutoFantastico[] = {0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01};
 
     for (int i = 0; i < 8; i++) {
-        mostrarSecuencia(ledsAutoFantastico[i]);
+        mostrarSecuencia(tablaAutoFantastico[i]);
+        estadoLeds(tablaAutoFantastico[i]);
         Sleep(DELAY_MS);
     }
     for (int i = 7; i != 0; i--) {
-        mostrarSecuencia(ledsAutoFantastico[i]);
+        mostrarSecuencia(tablaAutoFantastico[i]);
+        estadoLeds(tablaAutoFantastico[i]);
         Sleep(DELAY_MS);
     }
 }
 
+void choque() {
+    char tablaChoque[] = {0x81, 0x42, 0x24, 0x10, 0x10, 0x24, 0x42, 0x81};
+    for (int i = 0; i < 8; i++) {
+        mostrarSecuencia(tablaChoque[i]);
+        estadoLeds(tablaChoque[i]);
+        Sleep(DELAY_MS);
+    }
+}
 
 int main() {
     int opcionMenu = 0;
