@@ -6,13 +6,18 @@
 #include <windows.h>
 
 
-#define CLAVE "12345"
+#define CLAVE "1"
 #define TECLA_ENTER 13
 #define TECLA_BACKSPACE 8
 #define LONGITUD 5
 #define MAX_INTENTOS 3
 #define NUM_LEDS 8
 #define DELAY_MS 200
+
+#define DELAY_MS_DEFAULT 500
+#define DELAY_INCREMENT 100
+#define DELAY_MIN 100
+#define DELAY_MAX 2000
 
 #define NUMERO_USUARIOS 5
 
@@ -26,8 +31,8 @@ void menu() {
     printf("\n");
     printf("1- Auto-Fantastico\n");
     printf("2- EL Choque\n");
-    printf("3- Opcion3\n");
-    printf("4- Opcion4\n");
+    printf("3- Fuegos Artificiales\n");
+    printf("4- Señal\n");
     printf("5- Salir\n");
 }
 
@@ -86,11 +91,30 @@ bool controlContrasena() {
     }
 }
 
+int ajustarDelay(int *delay) {
+    if (_kbhit()) {
+        int ch = _getch();
+        if (ch == 224) {  // Detectar flechas
+            ch = _getch();
+            if (ch == 72) {  // Flecha hacia arriba
+                *delay -= DELAY_INCREMENT;
+                if (*delay < DELAY_MIN) *delay = DELAY_MIN;
+            } else if (ch == 80) {  // Flecha hacia abajo
+                *delay += DELAY_INCREMENT;
+                if (*delay > DELAY_MAX) *delay = DELAY_MAX;
+            } else if (ch == 77) {  // Flecha hacia la derecha
+                return 1;  // Señal de salida
+            }
+        }
+    }
+    return 0;  // Continuar ejecutando
+}
+
 void estadoLeds(int num) {
     const char led[] = {14, 15, 10, 23, 24, 25, 8, 7}; // Debe declararse nuevamente aquí
     for (int i = 0; i < 8; i++) {
         int numval = (num >> i) & 0x01;
-        //-------> digitalWrite(led[i], numval);
+        //digitalWrite(led[i], numval);
     }
 }
 
@@ -111,21 +135,29 @@ void mostrarSecuencia(unsigned char secuencia) {
 }
 
 void autoFantastico() {
-   char tablaAutoFantastico[] = {0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01};
+    printf("\nAUTO FANTASTICO: \n");
+    char tablaAutoFantastico[] = {0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01};
+    int delay = DELAY_MS_DEFAULT;
 
-    for (int i = 0; i < 8; i++) {
-        mostrarSecuencia(tablaAutoFantastico[i]);
-        estadoLeds(tablaAutoFantastico[i]);
-        Sleep(DELAY_MS);
-    }
-    for (int i = 7; i != 0; i--) {
-        mostrarSecuencia(tablaAutoFantastico[i]);
-        estadoLeds(tablaAutoFantastico[i]);
-        Sleep(DELAY_MS);
+    while (1) {
+        for (int i = 0; i < 8; i++) {
+            mostrarSecuencia(tablaAutoFantastico[i]);
+            estadoLeds(tablaAutoFantastico[i]);
+            Sleep(delay);
+            if (ajustarDelay(&delay)) return;  // Salir si se presionó la flecha derecha
+        }
+        for (int i = 7; i != 0; i--) {
+            mostrarSecuencia(tablaAutoFantastico[i]);
+            estadoLeds(tablaAutoFantastico[i]);
+            Sleep(delay);
+            if (ajustarDelay(&delay)) return;  // Salir si se presionó la flecha derecha
+        }
     }
 }
 
 void choque() {
+
+    printf("\nCHOQUE: \n");
     char tablaChoque[] = {0x81, 0x42, 0x24, 0x10, 0x10, 0x24, 0x42, 0x81};
     for (int i = 0; i < 8; i++) {
         mostrarSecuencia(tablaChoque[i]);
@@ -134,9 +166,38 @@ void choque() {
     }
 }
 
+void fuegoArtifial(){
+
+    printf("\nFUEGOS ARTIFICIALES: \n");
+    char tablaChoque[] = {0x80, 0x40, 0x20, 0x10, 0x08, 0x14, 0x22, 0x41};
+    for (int i = 0; i < 8; i++) {
+        mostrarSecuencia(tablaChoque[i]);
+        estadoLeds(tablaChoque[i]);
+        Sleep(DELAY_MS);
+    }
+}
+
+void prendeApaga() {
+    unsigned char luces = 0xFF;
+    for (int veces = 0; veces < 8; veces++) {
+        mostrarSecuencia(luces);
+        estadoLeds(luces);
+        luces = ~luces;
+        Sleep(DELAY_MS);
+    }
+
+}
+
 int main() {
-    int opcionMenu = 0;
+    int opcionMenu = 0, i=0;
     bool controlContra = false;
+
+   /* pioInit();
+
+    for(i=0; i<8; i++){
+        pinMode(led[i], output);
+    }
+    leds(0xff);*/
 
     controlContra = controlContrasena();
 
@@ -148,16 +209,16 @@ int main() {
 
             switch (opcionMenu) {
                 case 1:
-                    // AUTO FANTASTICO
+                    autoFantastico();
                     break;
                 case 2:
-                    // EL CHOQUE
+                    choque();
                     break;
                 case 3:
-                    // OPCION 3
+                    fuegoArtifial();
                     break;
                 case 4:
-                    // OPCION 4
+                    prendeApaga();
                     break;
                 case 5:
                     exit(0);
