@@ -12,14 +12,17 @@
 #define LONGITUD 5
 #define MAX_INTENTOS 3
 #define NUM_LEDS 8
-#define DELAY_MS 200
+#define DELAY_MS 2000
 
-#define DELAY_MS_DEFAULT 500
-#define DELAY_INCREMENT 100
-#define DELAY_MIN 100
-#define DELAY_MAX 2000
+int velocidad = DELAY_MS; // Velocidad inicial
+
 
 #define NUMERO_USUARIOS 5
+
+void cambiarColor(int color) {
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    SetConsoleTextAttribute(hConsole, color);
+}
 
 void menu() {
     system("cls");
@@ -91,25 +94,6 @@ bool controlContrasena() {
     }
 }
 
-int ajustarDelay(int *delay) {
-    if (_kbhit()) {
-        int ch = _getch();
-        if (ch == 224) {  // Detectar flechas
-            ch = _getch();
-            if (ch == 72) {  // Flecha hacia arriba
-                *delay -= DELAY_INCREMENT;
-                if (*delay < DELAY_MIN) *delay = DELAY_MIN;
-            } else if (ch == 80) {  // Flecha hacia abajo
-                *delay += DELAY_INCREMENT;
-                if (*delay > DELAY_MAX) *delay = DELAY_MAX;
-            } else if (ch == 77) {  // Flecha hacia la derecha
-                return 1;  // Señal de salida
-            }
-        }
-    }
-    return 0;  // Continuar ejecutando
-}
-
 void estadoLeds(int num) {
     const char led[] = {14, 15, 10, 23, 24, 25, 8, 7}; // Debe declararse nuevamente aquí
     for (int i = 0; i < 8; i++) {
@@ -137,20 +121,82 @@ void mostrarSecuencia(unsigned char secuencia) {
 void autoFantastico() {
     printf("\nAUTO FANTASTICO: \n");
     char tablaAutoFantastico[] = {0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01};
-    int delay = DELAY_MS_DEFAULT;
 
     while (1) {
         for (int i = 0; i < 8; i++) {
             mostrarSecuencia(tablaAutoFantastico[i]);
             estadoLeds(tablaAutoFantastico[i]);
-            Sleep(delay);
-            if (ajustarDelay(&delay)) return;  // Salir si se presionó la flecha derecha
+            Sleep(velocidad);
+
+            // Verificar si se ha presionado la tecla ↑
+            if (GetAsyncKeyState(VK_UP) & 0x8000) {
+                velocidad = velocidad + 50;
+                cambiarColor(2);
+                printf("Nueva velocidad: %d\n", velocidad);
+                cambiarColor(7);
+            }
+
+            // Verificar si se ha presionado la tecla ↓
+            if (GetAsyncKeyState(VK_DOWN) & 0x8000) {
+
+                velocidad = velocidad - 50;
+
+                if(velocidad < 10){
+                    velocidad = 20;
+                }
+
+                cambiarColor(4);
+                printf("Nueva velocidad: %d\n", velocidad);
+                cambiarColor(7);
+            }
+
+            // Verificar si se ha presionado la tecla →
+            if (GetAsyncKeyState(VK_RIGHT) & 0x8000) {
+
+                cambiarColor(6);
+                printf("--> TERMINA JUEGO <--\n");
+                cambiarColor(7);
+                return;
+
+            }
         }
-        for (int i = 7; i != 0; i--) {
+
+        for (int i = 6; i > 0; i--) {
             mostrarSecuencia(tablaAutoFantastico[i]);
             estadoLeds(tablaAutoFantastico[i]);
-            Sleep(delay);
-            if (ajustarDelay(&delay)) return;  // Salir si se presionó la flecha derecha
+            Sleep(velocidad);
+
+            // Verificar si se ha presionado la tecla ↑
+            if (GetAsyncKeyState(VK_UP) & 0x8000) {
+                velocidad = velocidad + 50;
+                cambiarColor(2);
+                printf("Nueva velocidad: %d\n", velocidad);
+                cambiarColor(7);
+            }
+
+            // Verificar si se ha presionado la tecla ↓
+            if (GetAsyncKeyState(VK_DOWN) & 0x8000) {
+                velocidad = velocidad - 50;
+
+                if(velocidad < 10){
+                    velocidad = 20;
+                }
+                cambiarColor(4);
+                printf("Nueva velocidad: %d\n", velocidad);
+                cambiarColor(7);
+            }
+
+            // Verificar si se ha presionado la tecla →
+            if (GetAsyncKeyState(VK_RIGHT) & 0x8000) {
+
+                cambiarColor(6);
+                printf("--> TERMINA JUEGO <--\n");
+                cambiarColor(7);
+                return;
+
+
+            }
+
         }
     }
 }
@@ -159,10 +205,48 @@ void choque() {
 
     printf("\nCHOQUE: \n");
     char tablaChoque[] = {0x81, 0x42, 0x24, 0x10, 0x10, 0x24, 0x42, 0x81};
-    for (int i = 0; i < 8; i++) {
-        mostrarSecuencia(tablaChoque[i]);
-        estadoLeds(tablaChoque[i]);
-        Sleep(DELAY_MS);
+
+    while(1) {
+
+
+        for (int i = 0; i < 8; i++) {
+            mostrarSecuencia(tablaChoque[i]);
+            estadoLeds(tablaChoque[i]);
+
+                // Verificar si se ha presionado la tecla ↑
+                if (GetAsyncKeyState(VK_UP) & 0x8000) {
+                    velocidad = velocidad + 50;
+                    cambiarColor(2);
+                    printf("Nueva velocidad: %d\n", velocidad);
+                    cambiarColor(7);
+                }
+
+                // Verificar si se ha presionado la tecla ↓
+                if (GetAsyncKeyState(VK_DOWN) & 0x8000) {
+
+                    velocidad = velocidad - 50;
+
+                    if(velocidad < 10){
+                        velocidad = 20;
+                    }
+
+                    cambiarColor(4);
+                    printf("Nueva velocidad: %d\n", velocidad);
+                    cambiarColor(7);
+                }
+
+                // Verificar si se ha presionado la tecla →
+                if (GetAsyncKeyState(VK_RIGHT) & 0x8000) {
+
+                    cambiarColor(6);
+                    printf("--> TERMINA JUEGO <--\n");
+                    cambiarColor(7);
+                    return;
+
+                }
+        }
+
+
     }
 }
 
@@ -170,34 +254,101 @@ void fuegoArtifial(){
 
     printf("\nFUEGOS ARTIFICIALES: \n");
     char tablaChoque[] = {0x80, 0x40, 0x20, 0x10, 0x08, 0x14, 0x22, 0x41};
-    for (int i = 0; i < 8; i++) {
-        mostrarSecuencia(tablaChoque[i]);
-        estadoLeds(tablaChoque[i]);
-        Sleep(DELAY_MS);
+
+    while(1){
+
+        for (int i = 0; i < 8; i++) {
+            mostrarSecuencia(tablaChoque[i]);
+            estadoLeds(tablaChoque[i]);
+
+                // Verificar si se ha presionado la tecla ↑
+                if (GetAsyncKeyState(VK_UP) & 0x8000) {
+                    velocidad = velocidad + 50;
+                    cambiarColor(2);
+                    printf("Nueva velocidad: %d\n", velocidad);
+                    cambiarColor(7);
+                }
+
+                // Verificar si se ha presionado la tecla ↓
+                if (GetAsyncKeyState(VK_DOWN) & 0x8000) {
+
+                    velocidad = velocidad - 50;
+
+                    if(velocidad < 10){
+                        velocidad = 20;
+                    }
+
+                    cambiarColor(4);
+                    printf("Nueva velocidad: %d\n", velocidad);
+                    cambiarColor(7);
+                }
+
+                // Verificar si se ha presionado la tecla →
+                if (GetAsyncKeyState(VK_RIGHT) & 0x8000) {
+
+                    cambiarColor(6);
+                    printf("--> TERMINA JUEGO <--\n");
+                    cambiarColor(7);
+                    return;
+
+                }
+        }
+
     }
+
 }
 
 void prendeApaga() {
     unsigned char luces = 0xFF;
-    for (int veces = 0; veces < 8; veces++) {
-        mostrarSecuencia(luces);
-        estadoLeds(luces);
-        luces = ~luces;
-        Sleep(DELAY_MS);
+
+    while(1){
+
+        for (int veces = 0; veces < 8; veces++) {
+            mostrarSecuencia(luces);
+            estadoLeds(luces);
+            luces = ~luces;
+
+                // Verificar si se ha presionado la tecla ↑
+                if (GetAsyncKeyState(VK_UP) & 0x8000) {
+                    velocidad = velocidad + 50;
+                    cambiarColor(2);
+                    printf("Nueva velocidad: %d\n", velocidad);
+                    cambiarColor(7);
+                }
+
+                // Verificar si se ha presionado la tecla ↓
+                if (GetAsyncKeyState(VK_DOWN) & 0x8000) {
+
+                    velocidad = velocidad - 50;
+
+                    if(velocidad < 10){
+                        velocidad = 20;
+                    }
+
+                    cambiarColor(4);
+                    printf("Nueva velocidad: %d\n", velocidad);
+                    cambiarColor(7);
+                }
+
+                // Verificar si se ha presionado la tecla →
+                if (GetAsyncKeyState(VK_RIGHT) & 0x8000) {
+
+                    cambiarColor(6);
+                    printf("--> TERMINA JUEGO <--\n");
+                    cambiarColor(7);
+                    return;
+
+                }
+
+        }
     }
+
 
 }
 
 int main() {
-    int opcionMenu = 0, i=0;
+    int opcionMenu = 0;
     bool controlContra = false;
-
-   /* pioInit();
-
-    for(i=0; i<8; i++){
-        pinMode(led[i], output);
-    }
-    leds(0xff);*/
 
     controlContra = controlContrasena();
 
